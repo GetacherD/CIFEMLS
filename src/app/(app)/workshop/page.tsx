@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Flash from "@/components/Flash";
+import SearchSelect from "@/components/SearchSelect";
 import ItemLabel from "@/components/ItemLabel";
 import StatusBadge from "@/components/StatusBadge";
 import { requireRole } from "@/lib/auth";
@@ -226,7 +227,7 @@ export default async function WorkshopPage({
                     <input type="hidden" name="loader_id" value={l.id} />
                     <label>
                       Add {l.kind} to this loader
-                      <select name="item_id" defaultValue="" required>
+                      <SearchSelect name="item_id" defaultValue="" required>
                         <option value="" disabled>
                           Select…
                         </option>
@@ -236,7 +237,7 @@ export default async function WorkshopPage({
                             {o.is_current ? " (current)" : o.is_superseded ? " (superseded)" : ""}
                           </option>
                         ))}
-                      </select>
+                      </SearchSelect>
                     </label>
                     <button className="btn btn-secondary" type="submit">
                       Record loaded
@@ -259,10 +260,10 @@ export default async function WorkshopPage({
           </label>
           <label>
             Type
-            <select name="kind" required>
+            <SearchSelect name="kind" required>
               <option value="media">Media loader</option>
               <option value="software">Software loader</option>
-            </select>
+            </SearchSelect>
           </label>
           <label>
             Part number
@@ -274,14 +275,14 @@ export default async function WorkshopPage({
           </label>
           <label>
             Store
-            <select name="location_id" defaultValue="">
+            <SearchSelect name="location_id" defaultValue="">
               <option value="">— none —</option>
               {locations.map((x) => (
                 <option key={x.id} value={x.id}>
                   {x.name}
                 </option>
               ))}
-            </select>
+            </SearchSelect>
           </label>
           <label>
             Bin

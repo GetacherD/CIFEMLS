@@ -9,9 +9,13 @@ export default async function LoginPage({
   const sp = await searchParams;
   return (
     <main className="login-wrap">
-      <form action={signIn} className="card login-card">
-        <h1>QIFEMLS</h1>
-        <p className="muted">Aircraft media and software loader finder</p>
+      <section className="login-hero" aria-hidden="true">
+        <span className="brand-mark brand-mark-lg">Q</span>
+        <p className="login-claim">Right media.<br />Right loader.<br />Right aircraft.</p>
+      </section>
+      <form action={signIn} className="login-card">
+        <h1>Sign in to QIFEMLS</h1>
+        <p className="muted">Find the loader that holds the latest media or software for an aircraft, and where it is stored.</p>
         <Flash err={sp.err} />
         <label>
           Email

@@ -1,5 +1,6 @@
 import Flash from "@/components/Flash";
 import { requireRole } from "@/lib/auth";
+import SearchSelect from "@/components/SearchSelect";
 import { createClient } from "@/lib/supabase/server";
 import { ROLE_LABEL, type Profile, type Role } from "@/lib/types";
 import { createUser, setRole } from "./actions";
@@ -48,13 +49,13 @@ export default async function UsersPage({
           </label>
           <label>
             Role
-            <select name="role" defaultValue="mechanic">
+            <SearchSelect name="role" defaultValue="mechanic">
               {ROLES.map((r) => (
                 <option key={r} value={r}>
                   {ROLE_LABEL[r]}
                 </option>
               ))}
-            </select>
+            </SearchSelect>
           </label>
           <button className="btn" type="submit">
             Create
@@ -80,13 +81,13 @@ export default async function UsersPage({
                   <td>
                     <form action={setRole} className="inline">
                       <input type="hidden" name="user_id" value={u.id} />
-                      <select name="role" defaultValue={u.role}>
+                      <SearchSelect name="role" defaultValue={u.role}>
                         {ROLES.map((r) => (
                           <option key={r} value={r}>
                             {ROLE_LABEL[r]}
                           </option>
                         ))}
-                      </select>
+                      </SearchSelect>
                       <button className="btn btn-secondary btn-small" type="submit">
                         Save
                       </button>

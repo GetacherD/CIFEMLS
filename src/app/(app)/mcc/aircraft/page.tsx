@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Flash from "@/components/Flash";
+import SearchSelect from "@/components/SearchSelect";
 import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { addAircraft, assignGroup, bulkAddAircraft } from "./actions";
@@ -46,14 +47,14 @@ export default async function FleetPage({
             </label>
             <label>
               Group
-              <select name="group_id" defaultValue="">
+              <SearchSelect name="group_id" defaultValue="">
                 <option value="">— none —</option>
                 {groups.map((x) => (
                   <option key={x.id} value={x.id}>
                     {x.name}
                   </option>
                 ))}
-              </select>
+              </SearchSelect>
             </label>
             <button className="btn" type="submit">
               Add
@@ -104,14 +105,14 @@ export default async function FleetPage({
                   <td>
                     <form action={assignGroup} className="inline">
                       <input type="hidden" name="aircraft_id" value={x.id} />
-                      <select name="group_id" defaultValue={x.group_id ?? ""}>
+                      <SearchSelect name="group_id" defaultValue={x.group_id ?? ""}>
                         <option value="">— none —</option>
                         {groups.map((gr) => (
                           <option key={gr.id} value={gr.id}>
                             {gr.name}
                           </option>
                         ))}
-                      </select>
+                      </SearchSelect>
                       <button className="btn btn-secondary btn-small" type="submit">
                         Save
                       </button>

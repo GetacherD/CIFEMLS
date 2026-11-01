@@ -1,4 +1,5 @@
 import Link from "next/link";
+import TableLabels from "@/components/TableLabels";
 import { getProfile } from "@/lib/auth";
 import { signOut } from "@/app/actions";
 import { ROLE_LABEL, type Role } from "@/lib/types";
@@ -29,6 +30,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       <header className="topbar">
         <div className="topbar-inner">
           <Link href="/" className="brand">
+            <span className="brand-mark" aria-hidden="true">Q</span>
             QIFEMLS
           </Link>
           <nav className="nav" aria-label="Main">
@@ -49,6 +51,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         </div>
       </header>
       <main className="container">{children}</main>
+      <TableLabels />
     </>
   );
 }

@@ -1,5 +1,7 @@
 import Link from "next/link";
+import SearchBar from "@/components/SearchBar";
 import { notFound } from "next/navigation";
+import SearchSelect from "@/components/SearchSelect";
 import Flash from "@/components/Flash";
 import ItemLabel from "@/components/ItemLabel";
 import StatusBadge from "@/components/StatusBadge";
@@ -84,19 +86,7 @@ export default async function AircraftDetail({
 
   return (
     <div className="stack">
-      <form action="/aircraft" method="get" className="search">
-        <input
-          name="q"
-          defaultValue={ac.registration}
-          placeholder="Search aircraft registration, e.g. AU-EPY"
-          aria-label="Aircraft registration"
-          autoComplete="off"
-          required
-        />
-        <button className="btn" type="submit">
-          Find loaders
-        </button>
-      </form>
+      <SearchBar defaultValue={ac.registration} />
 
       <div className="page-head">
         <p className="small">
@@ -104,7 +94,7 @@ export default async function AircraftDetail({
         </p>
         <div className="spread">
           <div>
-            <h1 style={{ marginBottom: 0 }}>{ac.registration}</h1>
+            <h1 className="reg">{ac.registration}</h1>
             <span className="muted">{groupName ? `Group ${groupName}` : "No group assigned"}</span>
           </div>
           <StatusBadge status={overall} />
@@ -207,14 +197,14 @@ export default async function AircraftDetail({
                       <input type="hidden" name="item_id" value={r.required_item_id} />
                       <label>
                         Loader used
-                        <select name="loader_id" defaultValue="">
+                        <SearchSelect name="loader_id" defaultValue="">
                           <option value="">— not recorded —</option>
                           {candidates.map((h) => (
                             <option key={h.loader_id} value={h.loader_id}>
                               {h.loader_no} ({fmtPlace(h.location_name, h.bin)})
                             </option>
                           ))}
-                        </select>
+                        </SearchSelect>
                       </label>
                       <label style={{ flex: 1, minWidth: "10rem" }}>
                         Note

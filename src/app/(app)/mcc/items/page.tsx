@@ -1,5 +1,6 @@
 import Flash from "@/components/Flash";
 import StatusBadge from "@/components/StatusBadge";
+import SearchSelect from "@/components/SearchSelect";
 import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { KIND_LABEL, propertiesToText, type Kind } from "@/lib/types";
@@ -57,20 +58,20 @@ export default async function ItemsPage({
         <div className="row">
           <label>
             System
-            <select name="system_type_id" required>
+            <SearchSelect name="system_type_id" required>
               {systems.map((x) => (
                 <option key={x.id} value={x.id}>
                   {x.code} — {x.name}
                 </option>
               ))}
-            </select>
+            </SearchSelect>
           </label>
           <label>
             Type
-            <select name="kind" required>
+            <SearchSelect name="kind" required>
               <option value="media">Media</option>
               <option value="software">Software</option>
-            </select>
+            </SearchSelect>
           </label>
           <label>
             Part number

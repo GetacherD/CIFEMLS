@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Flash from "@/components/Flash";
+import SearchSelect from "@/components/SearchSelect";
 import ItemLabel from "@/components/ItemLabel";
 import StatusBadge from "@/components/StatusBadge";
 import { requireRole } from "@/lib/auth";
@@ -133,7 +134,7 @@ export default async function StorePage({
                     <td>
                       <form action={moveLoader} className="row">
                         <input type="hidden" name="loader_id" value={l.id} />
-                        <select name="location_id" defaultValue={l.location_id ?? ""} required>
+                        <SearchSelect name="location_id" defaultValue={l.location_id ?? ""} required>
                           <option value="" disabled>
                             Select…
                           </option>
@@ -142,7 +143,7 @@ export default async function StorePage({
                               {x.name}
                             </option>
                           ))}
-                        </select>
+                        </SearchSelect>
                         <input name="bin" placeholder="bin" defaultValue={l.bin ?? ""} style={{ width: "6rem" }} />
                         <input name="note" placeholder="note (optional)" style={{ width: "9rem" }} />
                         <button className="btn btn-small" type="submit">

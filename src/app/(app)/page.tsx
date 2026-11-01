@@ -1,4 +1,5 @@
 import Link from "next/link";
+import SearchBar from "@/components/SearchBar";
 import Flash from "@/components/Flash";
 import ItemLabel from "@/components/ItemLabel";
 import StatusBadge from "@/components/StatusBadge";
@@ -78,19 +79,7 @@ export default async function Dashboard({
     <div className="stack">
       <Flash msg={sp.msg} err={sp.err} />
 
-      <form action="/aircraft" method="get" className="search">
-        <input
-          name="q"
-          placeholder="Search aircraft registration, e.g. AU-EPY"
-          aria-label="Aircraft registration"
-          autoComplete="off"
-          autoFocus
-          required
-        />
-        <button className="btn" type="submit">
-          Find loaders
-        </button>
-      </form>
+      <SearchBar />
 
       <div className="grid grid-4">
         <div className="card stat">

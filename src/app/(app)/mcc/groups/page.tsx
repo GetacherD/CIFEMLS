@@ -1,5 +1,6 @@
 import Flash from "@/components/Flash";
 import ItemLabel from "@/components/ItemLabel";
+import SearchSelect from "@/components/SearchSelect";
 import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { KINDS, KIND_LABEL, fmtDate, type Item } from "@/lib/types";
@@ -123,7 +124,7 @@ export default async function GroupsPage({
                           <input type="hidden" name="kind" value={kind} />
                           <label style={{ flex: 1, minWidth: "12rem" }}>
                             Set expected {kind}
-                            <select name="item_id" defaultValue={row?.item_id ?? ""} required>
+                            <SearchSelect name="item_id" defaultValue={row?.item_id ?? ""} required>
                               {!row && (
                                 <option value="" disabled>
                                   Select…
@@ -135,7 +136,7 @@ export default async function GroupsPage({
                                   {o.code ? ` — ${o.code}` : ""}
                                 </option>
                               ))}
-                            </select>
+                            </SearchSelect>
                           </label>
                           <button className="btn" type="submit">
                             Apply

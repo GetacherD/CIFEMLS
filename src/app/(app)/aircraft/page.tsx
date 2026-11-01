@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import SearchBar from "@/components/SearchBar";
 import Flash from "@/components/Flash";
 import StatusBadge from "@/components/StatusBadge";
 import { createClient } from "@/lib/supabase/server";
@@ -22,24 +23,26 @@ export default async function AircraftList({
   const onlyNeeds = sp.only === "needs";
   const supabase = await createClient();
 
-  let query = supabase
+  const query = supabase
     .from("aircraft")
     .select("id, registration, group_id, aircraft_groups(name)")
     .order("registration")
-    .limit(500);
-  if (q) query = query.ilike("registration", `%${q}%`);
+    .limit(5000);
 
   const { data } = await query;
-  const aircraft = (data ?? []) as unknown as {
+  const norm = (v: string) => v.toLowerCase().replace(/[^a-z0-9]/g, "");
+  const all = (data ?? []) as unknown as {
     id: string;
     registration: string;
     group_id: string | null;
     aircraft_groups: { name: string } | null;
   }[];
+  // Any part of a registration matches, ignoring case, hyphens and spaces ("mhv", "A7APY", "au mh").
+  const aircraft = q ? all.filter((x) => norm(x.registration).includes(norm(q))) : all;
 
   // Typing a full registration (or a search with a single hit) goes straight to the aircraft.
   if (q) {
-    const exact = aircraft.find((x) => x.registration.toLowerCase() === q.toLowerCase());
+    const exact = aircraft.find((x) => norm(x.registration) === norm(q));
     if (exact) redirect(`/aircraft/${exact.id}`);
     if (aircraft.length === 1) redirect(`/aircraft/${aircraft[0].id}`);
   }
@@ -76,19 +79,7 @@ export default async function AircraftList({
       </div>
       <Flash msg={sp.msg} err={sp.err} />
 
-      <form action="/aircraft" method="get" className="search">
-        <input
-          name="q"
-          defaultValue={q}
-          placeholder="Registration, e.g. AU-EPY"
-          aria-label="Aircraft registration"
-          autoComplete="off"
-        />
-        {onlyNeeds && <input type="hidden" name="only" value="needs" />}
-        <button className="btn" type="submit">
-          Search
-        </button>
-      </form>
+      <SearchBar defaultValue={q} hidden={onlyNeeds ? { only: "needs" } : undefined} />
 
       <div className="card">
         <div className="table-wrap">
