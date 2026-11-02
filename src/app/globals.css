@@ -939,3 +939,96 @@ details > summary {
     display: none;
   }
 }
+
+/* ---------- Loading feedback ---------- */
+.progress {
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 3px;
+  width: 100%;
+  z-index: 100;
+  background: var(--brand-hi);
+  transform-origin: left;
+  transform: scaleX(0);
+  opacity: 0;
+  pointer-events: none;
+}
+.progress.on {
+  opacity: 1;
+  animation: progress 12s cubic-bezier(0.1, 0.8, 0.2, 1) forwards;
+}
+@keyframes progress {
+  from {
+    transform: scaleX(0.05);
+  }
+  to {
+    transform: scaleX(0.92);
+  }
+}
+.spin {
+  display: inline-block;
+  width: 0.9em;
+  height: 0.9em;
+  margin-right: 0.35rem;
+  vertical-align: -0.1em;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+button.is-busy,
+.btn.is-busy {
+  opacity: 0.7;
+  cursor: progress;
+}
+button.is-busy:not(:disabled)::after {
+  content: "";
+  display: inline-block;
+  width: 0.8em;
+  height: 0.8em;
+  margin-left: 0.45rem;
+  vertical-align: -0.05em;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+.search.is-busy input {
+  opacity: 0.6;
+}
+.skel {
+  background: linear-gradient(90deg, var(--line) 25%, var(--surface-2) 50%, var(--line) 75%);
+  background-size: 200% 100%;
+  border-radius: var(--radius);
+  animation: shimmer 1.3s linear infinite;
+}
+@keyframes shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+@media (prefers-reduced-motion: reduce) {
+  .progress.on {
+    animation: none;
+    transform: scaleX(0.6);
+  }
+  .spin,
+  button.is-busy::after,
+  .skel {
+    animation-duration: 2s;
+  }
+}

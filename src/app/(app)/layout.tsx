@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import TableLabels from "@/components/TableLabels";
+import NavProgress from "@/components/NavProgress";
 import { getProfile } from "@/lib/auth";
 import { signOut } from "@/app/actions";
 import { ROLE_LABEL, type Role } from "@/lib/types";
@@ -52,6 +54,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       </header>
       <main className="container">{children}</main>
       <TableLabels />
+      <Suspense fallback={null}>
+        <NavProgress />
+      </Suspense>
     </>
   );
 }

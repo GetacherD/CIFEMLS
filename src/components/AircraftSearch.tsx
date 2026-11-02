@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState, useTransition } from "react";
 
 export interface AircraftHint {
   id: string;
@@ -28,6 +28,8 @@ export default function AircraftSearch({
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(-1);
   const wrap = useRef<HTMLFormElement>(null);
+  const [pending, start] = useTransition();
+  const [target, setTarget] = useState<string | null>(null);
 
   const hits = useMemo(() => {
     const n = norm(q);
@@ -44,21 +46,32 @@ export default function AircraftSearch({
 
   function go(a: AircraftHint) {
     setOpen(false);
-    router.push(`/aircraft/${a.id}`);
+    setQ(a.registration);
+    setTarget(a.registration);
+    start(() => router.push(`/aircraft/${a.id}`));
+  }
+
+  function submit(e: React.FormEvent) {
+    e.preventDefault();
+    if (pending) return;
+    if (active >= 0 && hits[active]) return go(hits[active]);
+    const text = q.trim();
+    if (!text) return;
+    setOpen(false);
+    setTarget(text);
+    const extra = new URLSearchParams(hidden ?? {});
+    extra.set("q", text);
+    start(() => router.push(`/aircraft?${extra.toString()}`));
   }
 
   return (
     <form
       action="/aircraft"
       method="get"
-      className="search"
+      className={`search ${pending ? "is-busy" : ""}`}
       ref={wrap}
-      onSubmit={(e) => {
-        if (active >= 0 && hits[active]) {
-          e.preventDefault();
-          go(hits[active]);
-        }
-      }}
+      onSubmit={submit}
+      aria-busy={pending}
       onBlur={(e) => {
         if (!wrap.current?.contains(e.relatedTarget as Node)) setOpen(false);
       }}
@@ -69,6 +82,7 @@ export default function AircraftSearch({
         placeholder={placeholder}
         aria-label="Aircraft registration"
         autoComplete="off"
+        readOnly={pending}
         role="combobox"
         aria-expanded={open && hits.length > 0}
         onChange={(e) => {
@@ -88,8 +102,8 @@ export default function AircraftSearch({
         }}
       />
       {hidden && Object.entries(hidden).map(([k, v]) => <input key={k} type="hidden" name={k} value={v} />)}
-      <button className="btn" type="submit">
-        Search
+      <button className={`btn ${pending ? "is-busy" : ""}`} type="submit" disabled={pending}>
+        {pending ? <><span className="spin" aria-hidden="true" /> Searching{target ? ` ${target}` : ""}…</> : "Search"}
       </button>
       {open && q.trim() !== "" && (
         <ul className="sugg" role="listbox">
