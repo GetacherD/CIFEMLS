@@ -34,9 +34,12 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const onLogin = request.nextUrl.pathname.startsWith("/login");
+  const path = request.nextUrl.pathname;
+  const onLogin = path.startsWith("/login");
+  // Looking up an aircraft and its loaders is open to everyone; everything else needs a sign-in.
+  const isPublic = path === "/" || path === "/aircraft" || /^\/aircraft\/[^/]+$/.test(path);
 
-  if (!user && !onLogin) {
+  if (!user && !onLogin && !isPublic) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     url.search = "";
