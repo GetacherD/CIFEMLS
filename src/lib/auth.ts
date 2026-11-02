@@ -33,3 +33,13 @@ export async function requireRole(...roles: Role[]): Promise<Profile> {
   }
   return profile;
 }
+
+// For pages anyone may open: the profile when signed in, otherwise null (no redirect).
+export async function getProfileOptional(): Promise<Profile | null> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return null;
+  return getProfile();
+}
