@@ -7,7 +7,7 @@ import ItemLabel from "@/components/ItemLabel";
 import StatusBadge from "@/components/StatusBadge";
 import { getProfileOptional } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { KIND_LABEL, fmtDate, fmtPlace, overallStatus, type StatusRow } from "@/lib/types";
+import { KIND_LABEL, fmtDate, fmtPlace, overallStatus, type Kind, type StatusRow } from "@/lib/types";
 import { markLoaded } from "./actions";
 
 interface LoaderHit {
@@ -49,6 +49,13 @@ export default async function AircraftDetail({
     .order("kind");
   const rows = (statusData ?? []) as StatusRow[];
   const overall = overallStatus(ac.group_id, rows);
+  // Media and software are both always shown: a kind the group has no requirement for gets a note.
+  const missingKinds: { code: string; kind: Kind }[] = [];
+  for (const code of Array.from(new Set(rows.map((r) => r.system_code)))) {
+    for (const kind of ["media", "software"] as Kind[]) {
+      if (!rows.some((r) => r.system_code === code && r.kind === kind)) missingKinds.push({ code, kind });
+    }
+  }
 
   const neededIds = Array.from(
     new Set(rows.filter((r) => r.status !== "up_to_date").map((r) => r.required_item_id))
@@ -231,6 +238,21 @@ export default async function AircraftDetail({
             </section>
           );
         })}
+        {missingKinds.length > 0 &&
+          missingKinds.map(({ code, kind }) => (
+            <section key={`missing-${code}-${kind}`} className="card req-card stack">
+              <div className="spread">
+                <h2 style={{ margin: 0 }}>
+                  {code} {KIND_LABEL[kind].toLowerCase()}
+                </h2>
+                <StatusBadge status="no_requirement" />
+              </div>
+              <p className="muted" style={{ margin: 0 }}>
+                No {KIND_LABEL[kind].toLowerCase()} is required for group {groupName} yet. MCC sets this under
+                Groups &amp; requirements.
+              </p>
+            </section>
+          ))}
       </div>
 
       {profile && (
