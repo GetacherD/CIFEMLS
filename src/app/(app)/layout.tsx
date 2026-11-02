@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import TableLabels from "@/components/TableLabels";
 import NavProgress from "@/components/NavProgress";
-import { getProfile } from "@/lib/auth";
+import { getProfileOptional } from "@/lib/auth";
 import { signOut } from "@/app/actions";
 import { ROLE_LABEL, type Role } from "@/lib/types";
 
@@ -24,8 +24,8 @@ const NAV: NavItem[] = [
 ];
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
-  const profile = await getProfile();
-  const links = NAV.filter((n) => n.roles === "all" || n.roles.includes(profile.role));
+  const profile = await getProfileOptional();
+  const links = NAV.filter((n) => n.roles === "all" || (profile && n.roles.includes(profile.role)));
 
   return (
     <>
@@ -42,14 +42,22 @@ export default async function AppLayout({ children }: { children: React.ReactNod
               </Link>
             ))}
           </nav>
-          <form action={signOut} className="who">
-            <span>
-              {profile.full_name ?? profile.email} · <em>{ROLE_LABEL[profile.role]}</em>
-            </span>
-            <button className="btn btn-secondary btn-small" type="submit">
-              Sign out
-            </button>
-          </form>
+          {profile ? (
+            <form action={signOut} className="who">
+              <span>
+                {profile.full_name ?? profile.email} · <em>{ROLE_LABEL[profile.role]}</em>
+              </span>
+              <button className="btn btn-secondary btn-small" type="submit">
+                Sign out
+              </button>
+            </form>
+          ) : (
+            <div className="who">
+              <Link href="/login" className="btn btn-secondary btn-small">
+                Sign in
+              </Link>
+            </div>
+          )}
         </div>
       </header>
       <main className="container">{children}</main>
