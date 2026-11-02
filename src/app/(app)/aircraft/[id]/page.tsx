@@ -5,7 +5,7 @@ import SearchSelect from "@/components/SearchSelect";
 import Flash from "@/components/Flash";
 import ItemLabel from "@/components/ItemLabel";
 import StatusBadge from "@/components/StatusBadge";
-import { getProfile } from "@/lib/auth";
+import { getProfileOptional } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { KIND_LABEL, fmtDate, fmtPlace, overallStatus, type StatusRow } from "@/lib/types";
 import { markLoaded } from "./actions";
@@ -30,7 +30,7 @@ export default async function AircraftDetail({
 }) {
   const { id } = await params;
   const sp = await searchParams;
-  const profile = await getProfile();
+  const profile = await getProfileOptional();
   const supabase = await createClient();
 
   const { data: ac } = await supabase
@@ -62,13 +62,15 @@ export default async function AircraftDetail({
           .in("item_id", neededIds)
           .eq("active", true)
       : Promise.resolve({ data: [] as LoaderHit[] }),
-    supabase
+    !profile
+      ? Promise.resolve({ data: [] as unknown[] })
+      : supabase
       .from("aircraft_install_log")
       .select("id, installed_at, installed_by, note, items(part_number, version, code, kind, properties), loaders(loader_no)")
       .eq("aircraft_id", id)
       .order("installed_at", { ascending: false })
       .limit(10),
-    supabase.from("profiles").select("id, full_name, email"),
+    profile ? supabase.from("profiles").select("id, full_name, email") : Promise.resolve({ data: [] as unknown[] }),
   ]);
 
   const hits = ((loaderRes.data ?? []) as LoaderHit[]).sort(
@@ -82,7 +84,7 @@ export default async function AircraftDetail({
       (p) => [p.id, p.full_name ?? p.email ?? "—"]
     )
   );
-  const canMark = profile.role === "mechanic" || profile.role === "mcc_admin";
+  const canMark = !!profile && (profile.role === "mechanic" || profile.role === "mcc_admin");
 
   return (
     <div className="stack">
@@ -178,9 +180,13 @@ export default async function AircraftDetail({
                     {candidates.map((h) => (
                       <div key={h.loader_id} className="loader-hit">
                         <span className="id">
-                          <Link href={`/loaders/${h.loader_id}`}>
+                          {profile ? (
+                            <Link href={`/loaders/${h.loader_id}`}>
+                              <strong>{h.loader_no}</strong>
+                            </Link>
+                          ) : (
                             <strong>{h.loader_no}</strong>
-                          </Link>
+                          )}
                           <small>
                             PN {h.loader_part_number ?? "—"} · SN {h.loader_serial_number ?? "—"}
                           </small>
@@ -191,6 +197,11 @@ export default async function AircraftDetail({
                     ))}
                   </div>
 
+                  {!profile && candidates.length > 0 && (
+                    <p className="muted small">
+                      <Link href="/login">Sign in</Link> to record that this aircraft was loaded.
+                    </p>
+                  )}
                   {canMark && (
                     <form action={markLoaded} className="row">
                       <input type="hidden" name="aircraft_id" value={ac.id} />
@@ -222,6 +233,7 @@ export default async function AircraftDetail({
         })}
       </div>
 
+      {profile && (
       <section className="card stack">
         <h2 style={{ margin: 0 }}>Loading history</h2>
         <div className="table-wrap">
@@ -258,6 +270,7 @@ export default async function AircraftDetail({
           </table>
         </div>
       </section>
+      )}
     </div>
   );
 }
